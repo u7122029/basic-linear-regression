@@ -1,0 +1,64 @@
+% Exercises to go with main.tex.
+% Build: latexmk -pdf exercises.tex
+
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2cm]{geometry}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{physics2}
+\usepackage{derivative}
+
+\usephysicsmodule{ab}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\titlespacing*{\section}{0pt}{1.4em}{0.2em}
+
+\begin{document}
+
+{\centering\LARGE\bfseries Basic Linear Regression: Exercises\par}
+
+\section*{Recall}
+
+Dataset \(D = \{(x^{(i)}, y^{(i)})\}_{i = 1}^N\), model \(f(x\mid m, c) = mx + c\), and loss
+\[L_2(m, c) = \frac{1}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})^2.\]
+\(L_2\) is smallest at
+\[m = \frac{\overline{xy} - \overline{x}\cdot \overline{y}}{\overline{x^2} - \overline{x}^2} \qquad c = \overline{y} - m\overline{x}\]
+where
+\begin{alignat*}{2}
+    \overline{x} &= \frac{1}{N}\sum_{i = 1}^Nx^{(i)} &\qquad \overline{y} &= \frac{1}{N}\sum_{i = 1}^Ny^{(i)}\\
+    \overline{xy} &= \frac{1}{N}\sum_{i = 1}^Nx^{(i)}y^{(i)} &\qquad \overline{x^2} &= \frac{1}{N}\sum_{i = 1}^N\ab(x^{(i)})^2
+\end{alignat*}
+
+\section*{Exercise 1: Two Points}
+
+Let \(D = \{(x^{(1)}, y^{(1)}), (x^{(2)}, y^{(2)})\}\) with \(x^{(1)} \neq x^{(2)}\). Using the formulas above, show that
+\[m = \frac{y^{(2)} - y^{(1)}}{x^{(2)} - x^{(1)}} \qquad c = \frac{x^{(2)}y^{(1)} - x^{(1)}y^{(2)}}{x^{(2)} - x^{(1)}}\]
+What does this tell you about the line of best fit for just two points?
+
+Hint: what is \(L_2(m, c)\)?
+
+\section*{Exercise 2: \(\pdv{L_2}{c}\)}
+
+Show that
+\[\pdv{L_2}{c} = \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})\]
+
+Hint: follow the same steps as \(\pdv{L_2}{m}\) in the slides.
+
+\section*{Exercise 3: Deriving \(m\) and \(c\)}
+
+Starting from
+\begin{align*}
+    0 &= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})x^{(i)}\\
+    0 &= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})
+\end{align*}
+derive the formulas for \(m\) and \(c\) in the Recall section.
+
+Hint: write each sum as a mean, e.g.\ \(\frac{1}{N}\sum_{i = 1}^Nx^{(i)}y^{(i)} = \overline{xy}\). Then solve the second equation for \(c\) and substitute it into the first.
+
+\end{document}

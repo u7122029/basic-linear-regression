@@ -1,0 +1,771 @@
+% Presentation template.
+% Build twice so the outline and page numbers settle:
+%   pdflatex main.tex && pdflatex main.tex
+% or: latexmk -pdf main.tex
+% Add "handout" to the document class options to flatten overlays.
+
+\documentclass[aspectratio=169,t]{beamer}
+
+\usefonttheme{professionalfonts}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{physics2}
+\usepackage{derivative}
+\usepackage{pgfplots}
+
+\usephysicsmodule{ab}
+% --- Theme -----------------------------------------------------------------
+
+\definecolor{ink}{HTML}{1C2833}
+\definecolor{accent}{HTML}{0E4D6C}
+\definecolor{accentsoft}{HTML}{E6F0F4}
+\definecolor{muted}{HTML}{5C6B76}
+\definecolor{signal}{HTML}{A33B24}
+\definecolor{signalsoft}{HTML}{F8EBE7}
+\definecolor{example}{HTML}{1F6B4A}
+\definecolor{examplesoft}{HTML}{E5F3EC}
+\definecolor{codebg}{HTML}{F4F7F8}
+\definecolor{rule}{HTML}{D5DDE3}
+
+\setbeamercolor{normal text}{fg=ink,bg=white}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{frametitle}{fg=ink,bg=white}
+\setbeamercolor{framesubtitle}{fg=muted}
+\setbeamercolor{title}{fg=white,bg=accent}
+\setbeamercolor{subtitle}{fg=white}
+\setbeamercolor{author}{fg=ink}
+\setbeamercolor{institute}{fg=muted}
+\setbeamercolor{date}{fg=muted}
+\setbeamercolor{footline}{fg=muted,bg=white}
+\setbeamercolor{alerted text}{fg=signal}
+\setbeamercolor{block title}{fg=white,bg=accent}
+\setbeamercolor{block body}{fg=ink,bg=accentsoft}
+\setbeamercolor{block title alerted}{fg=white,bg=signal}
+\setbeamercolor{block body alerted}{fg=ink,bg=signalsoft}
+\setbeamercolor{block title example}{fg=white,bg=example}
+\setbeamercolor{block body example}{fg=ink,bg=examplesoft}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{itemize subitem}{fg=accent}
+\setbeamercolor{enumerate item}{fg=accent}
+\setbeamercolor{section in toc}{fg=ink}
+\setbeamercolor{section in toc shaded}{fg=muted}
+
+\setbeamerfont{title}{series=\bfseries,size=\LARGE}
+\setbeamerfont{subtitle}{series=\mdseries,size=\large}
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamerfont{framesubtitle}{series=\mdseries,size=\small}
+\setbeamerfont{footline}{size=\scriptsize}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+
+\setbeamertemplate{frametitle}{%
+  \vspace{0.15em}%
+  \usebeamerfont{frametitle}\insertframetitle\par
+  \expandafter\ifblank\expandafter{\insertframesubtitle}{}{%
+    \vspace{0.12em}%
+    {\usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\par}%
+  }%
+  \vspace{0.32em}%
+  {\color{accent}\hrule height 0.9pt}%
+  \vspace{0.45em}%
+}
+
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.6ex,dp=1.15ex,leftskip=1.5em,rightskip=1.5em]{footline}%
+      \usebeamerfont{footline}%
+      \insertshortauthor\hfill\insertshorttitle\hfill\insertframenumber\,/\,\inserttotalframenumber
+    \end{beamercolorbox}%
+  }%
+}
+
+\setbeamertemplate{title page}{%
+  \vspace*{1em}%
+  \begin{beamercolorbox}[wd=\textwidth,sep=1.15em,left]{title}%
+    {\usebeamerfont{title}\inserttitle\par}%
+    \vspace{0.45em}%
+    {\usebeamerfont{subtitle}\insertsubtitle\par}%
+  \end{beamercolorbox}%
+  \vspace{2.2em}%
+  {\usebeamerfont{author}\insertauthor\par}%
+  \vspace{0.45em}%
+  {\color{muted}\insertinstitute\par}%
+  \vspace{1.4em}%
+  {\color{accent}\rule{2.2cm}{1.6pt}\par}%
+  \vspace{0.8em}%
+  {\color{muted}\insertdate\par}%
+}
+
+\setbeamertemplate{itemize item}{\raise0.45pt\hbox{\color{accent}\small$\bullet$}}
+\setbeamertemplate{itemize subitem}{\raise0.45pt\hbox{\color{accent}\small$\circ$}}
+\setbeamertemplate{itemize subsubitem}{\raise0.45pt\hbox{\color{muted}\scriptsize$\bullet$}}
+
+\lstdefinestyle{slide}{%
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{codebg},
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{muted}\itshape,
+  stringstyle=\color{example},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2,
+  aboveskip=0.6em,
+  belowskip=0.2em,
+  frame=single,
+  rulecolor=\color{rule},
+  framesep=7pt,
+  xleftmargin=2pt,
+  xrightmargin=2pt
+}
+\lstset{style=slide}
+
+% --- Plots -----------------------------------------------------------------
+
+\pgfplotsset{
+  compat=1.18,
+  slide axis/.style={
+    axis lines=left,
+    axis line style={muted,-},
+    tick style={muted},
+    tick label style={font=\scriptsize,text=muted},
+    label style={font=\small,text=ink},
+    title style={font=\small,text=ink},
+    legend style={font=\scriptsize,text=ink,draw=rule,fill=white},
+    legend cell align=left,
+    legend pos=north west,
+    grid=major,
+    major grid style={rule!70},
+  },
+  data axis/.style={
+    slide axis,
+    xmin=0, xmax=4, ymin=0, ymax=10,
+    xtick={0,...,4}, ytick={0,2,...,10},
+    xlabel={\(x\)}, ylabel={\(y\)},
+    ylabel style={rotate=-90},
+  },
+  data points/.style={only marks,mark=*,mark size=2.4pt,mark options={fill=ink,draw=white,line width=0.8pt}},
+  guess line/.style={accent,line width=1.4pt,domain=0.5:3.5,samples=2},
+  fit line/.style={example,line width=1.4pt,domain=0.5:3.5,samples=2},
+  residual bar/.style={signal,line width=1.4pt},
+}
+
+% The example dataset D, and L_1(m, c) and L_2(m, c) evaluated over it.
+\newcommand{\plotdata}{\addplot[data points] coordinates {(1,2) (2,3) (3,7)};}
+\pgfmathdeclarefunction{lossabs}{2}{%
+  \pgfmathparse{(abs((#1)+(#2)-2) + abs(2*(#1)+(#2)-3) + abs(3*(#1)+(#2)-7))/3}%
+}
+\pgfmathdeclarefunction{losssq}{2}{%
+  \pgfmathparse{(((#1)+(#2)-2)^2 + (2*(#1)+(#2)-3)^2 + (3*(#1)+(#2)-7)^2)/3}%
+}
+% How far to go along direction (dm, dc) from L_1's minimum (2.5, -0.5) to reach L_1 = 3.
+% Residuals 1 and 3 are 0 at the minimum, so along the ray L_1 is the max of two lines.
+\pgfmathdeclarefunction{rimabs}{2}{%
+  \pgfmathparse{min((3*3 - 1.5)/(abs((#1)+(#2)) + abs(3*(#1)+(#2)) + 2*(#1)+(#2)),
+                    (3*3 + 1.5)/max(abs((#1)+(#2)) + abs(3*(#1)+(#2)) - 2*(#1)-(#2), 0.001))}%
+}
+% Points of the L_1 surface: a ray from the minimum every 10 degrees, fanned out along the
+% same ellipse axes as the L_2 bowl, with 13 points from the minimum to the rim. Worked out
+% once here, because a frame is typeset again on every slide and pgfmath is slow.
+\xdef\lonesurface{}
+\foreach \t in {0,10,...,360}{%
+  \pgfmathsetmacro\raydm{0.3886*cos(\t) - 1.1614*sin(\t)}%
+  \pgfmathsetmacro\raydc{0.1710*cos(\t) + 2.6398*sin(\t)}%
+  \pgfmathsetmacro\rayrim{rimabs(\raydm,\raydc)}%
+  \foreach \k in {0,...,12}{%
+    \pgfmathsetmacro\surfm{2.5 + \k/12*\rayrim*\raydm}%
+    \pgfmathsetmacro\surfc{-0.5 + \k/12*\rayrim*\raydc}%
+    \pgfmathsetmacro\surfz{lossabs(\surfm,\surfc)}%
+    \xdef\lonesurface{\lonesurface (\surfm,\surfc,\surfz)}%
+  }%
+}
+
+% Appendix bookmarks insert a translator command that hyperref cannot put in a PDF string.
+\pdfstringdefDisableCommands{%
+  \def\translate#1{#1}%
+}
+
+% --- Talk metadata. The optional argument is what the footer shows. --------
+
+\title[Basic Linear Regression]{Basic Linear Regression}
+\subtitle{Line of best fit go brrr}
+\author[Your Name]{Your Name}
+% \author[A and B]{Author One \and Author Two}
+\institute{}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% Incremental bullets: \begin{itemize}[<+->] ... \end{itemize}
+\begin{frame}{The Ultimate Goal}
+  \framesubtitle{Fit a line to 2D Data}
+  \begin{itemize}[<+->]
+    \item Problem Introduction
+    \item Initial Quantification of Problem
+    \item Quick Calculus Pulse Check
+    \item (Optional) Pause for Calculus Workshop
+    \item Attempts at Solving Problem
+    \item (After) Practical Workshop
+  \end{itemize}
+\end{frame}
+
+% \begin{frame}{Two columns}
+%   \begin{columns}[T,onlytextwidth]
+%     \begin{column}{0.47\textwidth}
+%       \textbf{Left}
+%       \begin{itemize}
+%         \item First point
+%         \item Second point
+%       \end{itemize}
+%     \end{column}
+%     \begin{column}{0.47\textwidth}
+%       \textbf{Right}
+%       \begin{itemize}
+%         \item First point
+%         \item Second point
+%       \end{itemize}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
+
+\begin{frame}{The Points}
+  \begin{definition}
+    Dataset of points \(D = \{(x^{(i)}, y^{(i)})\}_{i = 1}^N = \{(x^{(1)}, y^{(1)}), (x^{(2)}, y^{(2)}), \dots, (x^{(N)}, y^{(N)})\}\)
+  \end{definition}
+
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \uncover<2->{%
+      \begin{example}
+        The dataset we will use throughout the slides:
+
+        \(D = \{(1, 2), (2, 3), (3, 7)\}\) where \(N = 3\).
+      \end{example}}
+      % T1: the example dataset as a table.
+      \medskip
+      \centering
+      \uncover<3->{%
+      \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \(i\) & \(x^{(i)}\) & \(y^{(i)}\) \\
+        \midrule
+        1 & 1 & 2 \\
+        2 & 2 & 3 \\
+        3 & 3 & 7 \\
+        \bottomrule
+      \end{tabular}}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      % G1: the example dataset as a graph.
+      \centering
+      \uncover<4->{%
+      \begin{tikzpicture}
+        \begin{axis}[data axis,width=\linewidth,height=4.7cm]
+          \plotdata
+        \end{axis}
+      \end{tikzpicture}}
+    \end{column}
+  \end{columns}
+\end{frame}
+\begin{frame}{The Line}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.5\textwidth}
+    \begin{definition}
+        A line as a function of \(x\), with \(m\) and \(c\) given:
+        \[f(x\mid m, c) = mx + c\]
+        Think: I need \(m\) and \(c\) before I can compute \(f(x)\).
+    \end{definition}
+    \uncover<2->{An initial guess: \(f(x\mid 1, 2) = x + 2\)}
+
+    \medskip
+    \uncover<3->{Can you do better? Why?}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      % G1 with the initial guess.
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[data axis,width=\linewidth,height=5.2cm]
+          \only<2->{%
+            \addplot[guess line] {x + 2};
+            \addlegendentry{\(f(x\mid 1, 2)\)}}
+          \plotdata
+          \addlegendentry{Data \(D\)}
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+\begin{frame}{Residuals}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.5\textwidth}
+    \begin{definition}
+        Residual \(r(i\mid m, c) = f(x^{(i)}\mid m, c) - y^{(i)}\)
+    \end{definition}
+    \uncover<5->{A good line makes all residuals small.}
+    % T1 with residuals of the initial guess, one row per click alongside its bar.
+    \begin{center}
+      \begin{tabular}{@{}cccc@{}}
+        \toprule
+        \(i\) & \(x^{(i)}\) & \(y^{(i)}\) & \(r(i\mid 1, 2)\) \\
+        \midrule
+        1 & 1 & 2 & \uncover<2->{\(3 - 2 = 1\)} \\
+        2 & 2 & 3 & \uncover<3->{\(4 - 3 = 1\)} \\
+        3 & 3 & 7 & \uncover<4->{\(5 - 7 = -2\)} \\
+        \bottomrule
+      \end{tabular}
+    \end{center}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      % G1 with the initial guess and its residuals.
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[data axis,width=\linewidth,height=5.2cm]
+          \addplot[guess line] {x + 2};
+          \addlegendentry{\(f(x\mid 1, 2)\)}
+          \only<2->{%
+            \addplot[residual bar] coordinates {(1,2) (1,3)};
+            \addlegendentry{Residual}}
+          \only<3->{\addplot[residual bar,forget plot] coordinates {(2,3) (2,4)};}
+          \only<4->{\addplot[residual bar,forget plot] coordinates {(3,7) (3,5)};}
+          \plotdata
+          \addlegendentry{Data \(D\)}
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+\begin{frame}{Good Line Attempt 1}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+    \begin{definition}
+        Loss function \(L\) is how bad a selection of \(m\) and \(c\) are.
+        \begin{align*}
+            L_1(m, c) &= \frac{1}{N}\sum_{i=1}^N|r(i\mid m, c)|\\
+            &\uncover<2->{= \frac{1}{N}\sum_{i=1}^N|f(x^{(i)}\mid m, c) - y^{(i)}|}
+        \end{align*}
+    \end{definition}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+    \uncover<3->{%
+    \begin{example}
+        % T1 with residuals of the initial guess, then L_1(1, 2).
+        \centering
+        \begin{tabular}{@{}cccc@{}}
+          \toprule
+          \(i\) & \(x^{(i)}\) & \(y^{(i)}\) & \(r(i\mid 1, 2)\) \\
+          \midrule
+          1 & 1 & 2 & \(3 - 2 = 1\) \\
+          2 & 2 & 3 & \(4 - 3 = 1\) \\
+          3 & 3 & 7 & \(5 - 7 = -2\) \\
+          \bottomrule
+        \end{tabular}
+        % Keep each & outside \uncover so the alignment still sees it.
+        \begin{align*}
+            \uncover<4->{L_1(1, 2)} &\uncover<4->{= \frac{1}{3}(|1| + |1| + |{-2}|)}\\
+            &\uncover<5->{= \frac{4}{3}}
+        \end{align*}
+    \end{example}}
+    \end{column}
+  \end{columns}
+  \medskip
+  \uncover<6->{Can we do better?}
+\end{frame}
+\begin{frame}{Problem Summary}
+    Given:
+    \begin{itemize}
+        \item Dataset \(D = \{(x^{(i)}, y^{(i)})\}_{i = 1}^N\), and
+        \item<2-> Model function \(f(x\mid m, c) = mx + c\)
+    \end{itemize}
+    \uncover<3->{Choose \(m\) and \(c\) to minimise:}
+    % In a display, \uncover goes inside \begingroup ... \endgroup. Anywhere else around the
+    % display, it leaves an empty line after it.
+    \[\begingroup\uncover<3->{L_1(m, c) = \frac{1}{N}\sum_{i = 1}^N|r(i\mid m, c)| = \frac{1}{N}\sum_{i = 1}^N|f(x^{(i)}\mid m, c) - y^{(i)}|}\endgroup\]
+\end{frame}
+\begin{frame}{10 Minute Calculus Pulse Check}
+  Do not simplify your answers.
+  % Working appears on the second click.
+  % A display at the very start of a block adds an empty line above it, so each problem's
+  % function is a centred line instead.
+  \only<1-2>{
+  \begin{block}{Problem 1}
+    \smallskip
+    {\centering\(\displaystyle g(x) = (3x + 1)^{21} + (x^5 + 6x)^{15}\)\par}
+    \smallskip
+    Find \(\displaystyle\odv{g}{x}\). %
+    \only<2>{\begin{align}
+        \odv{g}{x} &= \odv{}{x}(3x + 1)^{21} + \odv{}{x}(x^5 + 6x)^{15} && \text{\scriptsize\color{muted}addition}\\
+        &= 21(3x + 1)^{20}\cdot 3 + 15(x^5 + 6x)^{14}\cdot (5x^4 + 6) && \text{\scriptsize\color{muted}chain}
+    \end{align}}
+  \end{block}}
+  \only<3-4>{
+  \begin{block}{Problem 2}
+    \smallskip
+    {\centering\(\displaystyle h(m) = \sum_{i = 1}^{500}(2m^7 - 5m^3)^{i}\)\par}
+    \smallskip
+    Find \(\displaystyle\odv{h}{m}\).
+    \only<4>{\begin{align}
+        \odv{h}{m} &= \sum_{i = 1}^{500}\odv{}{m}(2m^7 - 5m^3)^{i} && \text{\scriptsize\color{muted}addition}\\
+        &= \sum_{i = 1}^{500}i(2m^7 - 5m^3)^{i-1}(14m^6 - 15m^2) && \text{\scriptsize\color{muted}chain}
+    \end{align}}
+  \end{block}}
+\end{frame}
+\begin{frame}{The Partial Derivative}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.5\textwidth}
+    For multivariable functions like \(L_1(m, c)\).
+
+    \uncover<2->{\(\displaystyle \pdv{L_1}{m}\) Take \(c\) constant, differentiate w.r.t \(m\).}
+
+    \uncover<3->{\(\displaystyle \pdv{L_1}{c}\) Take \(m\) constant, differentiate w.r.t \(c\).}
+
+    \uncover<4->{The minimum \(L_1\) is achieved through a choice of \(m\) and \(c\) such that}
+    \[\begingroup\uncover<4->{\pdv{L_1}{m} = \pdv{L_1}{c} = 0}\endgroup\]
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      % L_1 over D, with slices through its minimum at (m, c) = (2.5, -0.5). Like the L_2
+      % bowl, it is drawn over the region L_1 <= 3 instead of a rectangle, so the rim is level
+      % and the convex funnel shape stays visible. Its points are \lonesurface (preamble).
+      \centering
+      \begin{tikzpicture}
+        \begin{axis}[
+            width=\linewidth,height=4.3cm,
+            view={115}{35},
+            xlabel={\(m\)}, ylabel={\(c\)}, zlabel={\(L_1\)},
+            zlabel style={rotate=-90},
+            label style={font=\scriptsize,text=ink},
+            tick label style={font=\tiny,text=muted},
+            axis line style={muted},
+            tick style={muted},
+            colormap={loss}{color=(accentsoft) color=(accent)},
+          ]
+          \addplot3[surf,z buffer=sort,shader=faceted interp,faceted color=muted!60,line width=0.2pt,
+            mesh/cols=13] coordinates {\lonesurface};
+          % Each slice appears with its partial derivative, the minimum with the last line.
+          \only<2->{\addplot3[signal,line width=1.2pt,domain=0.75:3.75,samples=25,samples y=0] ({x}, {-0.5}, {lossabs(x,-0.5)});}
+          \only<3->{\addplot3[ink,line width=1.2pt,domain=-4:2,samples=25,samples y=0] ({2.5}, {x}, {lossabs(2.5,x)});}
+          \only<4->{\addplot3[data points] coordinates {(2.5,-0.5,0.5)};}
+        \end{axis}
+      \end{tikzpicture}\par
+      \uncover<2->{%
+      \begin{tikzpicture}
+        \begin{axis}[
+            slide axis,width=0.52\linewidth,height=2.9cm,
+            title={\(L_1(m, -0.5)\)}, xlabel={\(m\)},
+            xtick={1,2.5,3.5}, ymin=0, ymax=3, ytick={0,1,2,3},
+            domain=0.75:3.75, samples=25,
+          ]
+          \addplot[signal,line width=1.2pt] {lossabs(x,-0.5)};
+        \end{axis}
+      \end{tikzpicture}}%
+      \hfill
+      \uncover<3->{%
+      \begin{tikzpicture}
+        \begin{axis}[
+            slide axis,width=0.52\linewidth,height=2.9cm,
+            title={\(L_1(2.5, c)\)}, xlabel={\(c\)},
+            xtick={-4,-0.5,2}, ymin=0, ymax=3, ytick={0,1,2,3},
+            domain=-4:2, samples=25,
+          ]
+          \addplot[ink,line width=1.2pt] {lossabs(2.5,x)};
+        \end{axis}
+      \end{tikzpicture}}
+    \end{column}
+  \end{columns}
+\end{frame}
+\begin{frame}{Calculating \(\pdv{L_1}{m}\)}
+    \begin{align*}
+        \pdv{L_1}{m} &= \frac{1}{N}\cdot \pdv{}{m}\sum_{i = 1}^N |r(i\mid m, c)|\\
+        &\uncover<2->{= \frac{1}{N}\sum_{i = 1}^N \pdv{}{m}|r(i\mid m, c)|}
+    \end{align*}
+    \uncover<3->{Must use chain rule on abs function - not good!}
+    % |t| next to its derivative, which jumps from -1 to 1 and is undefined at t = 0.
+    % Both axes use scale only axis so their boxes line up and the arrow sits level between them.
+    % |t| appears first, then the arrow and its derivative.
+    \par\smallskip
+    {\centering
+      \uncover<4->{%
+      \begin{tikzpicture}
+        \begin{axis}[
+            slide axis,scale only axis,width=4cm,height=1.5cm,name=absplot,
+            title={\(f(t) = |t|\)},
+            xmin=-2, xmax=2, ymin=0, ymax=2,
+            xtick={-2,...,2}, ytick={0,1,2},
+          ]
+          \addplot[accent,line width=1.4pt,domain=-2:2,samples=3] {abs(x)};
+        \end{axis}
+        \coordinate (gap) at ([xshift=3.2cm]absplot.east);
+        \uncover<5->{%
+        \begin{axis}[
+            slide axis,scale only axis,width=4cm,height=1.5cm,name=dabsplot,
+            at={(gap)},anchor=west,
+            title={Undefined at \(t = 0\)},
+            xmin=-2, xmax=2, ymin=-1.5, ymax=1.5,
+            xtick={-2,...,2}, ytick={-1,0,1},
+          ]
+          \addplot[accent,line width=1.4pt] coordinates {(-2,-1) (0,-1)};
+          \addplot[accent,line width=1.4pt] coordinates {(0,1) (2,1)};
+          \addplot[only marks,mark=*,mark size=2.4pt,mark options={fill=white,draw=signal,line width=1pt}]
+            coordinates {(0,-1) (0,1)};
+        \end{axis}
+        \draw[->,ink,line width=1pt] ([xshift=0.35cm]absplot.east) -- node[above]{\(\displaystyle\odv{f}{t}\)} ([xshift=-0.75cm]dabsplot.west);}
+      \end{tikzpicture}}\par}
+\end{frame}
+% L_2 over D for the next frame, built once here and reused on each of its slides.
+% L_2's level sets are long thin ellipses (m and c trade off), so it is sampled over the
+% ellipse L_2 <= 4.5 instead of a rectangle: the rim is level and the bowl stays visible.
+% The ellipse's axes come from the eigenvectors of L_2's Hessian. The width is the width
+% of the column the bowl goes in.
+\newsavebox{\bowlfigure}
+\sbox{\bowlfigure}{%
+  \begin{tikzpicture}
+    \begin{axis}[
+        width=0.48\textwidth,height=4.8cm,
+        view={115}{35},
+        xlabel={\(m\)}, ylabel={\(c\)}, zlabel={\(L_2\)},
+        zlabel style={rotate=-90},
+        label style={font=\scriptsize,text=ink},
+        tick label style={font=\tiny,text=muted},
+        axis line style={muted},
+        tick style={muted},
+        declare function={
+          mm(\r,\t) = 2.5 + \r*(0.3886*cos(\t) - 1.1614*sin(\t));
+          cc(\r,\t) = -1 + \r*(0.1710*cos(\t) + 2.6398*sin(\t));
+        },
+        colormap={bowl}{color=(accentsoft) color=(accent)},
+        z buffer=sort,
+      ]
+      \addplot3[surf,shader=faceted interp,faceted color=muted!60,line width=0.2pt,
+        domain=0:2, y domain=0:360, samples=9, samples y=37]
+        ({mm(x,y)}, {cc(x,y)}, {losssq(mm(x,y),cc(x,y))});
+      \addplot3[data points] coordinates {(2.5,-1,0.5)};
+    \end{axis}
+  \end{tikzpicture}}
+\begin{frame}{Changing the Loss Function}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.5\textwidth}
+    Want a loss function like \(L_1\), but uses differentiable functions.
+
+    \uncover<2->{Idea: raise residual to power 2.}
+
+    \uncover<3->{Residual function \(r(i\mid m, c)\) stays the same.}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      % \bowlfigure is built just above this frame.
+      \centering
+      \uncover<5->{%
+      \usebox{\bowlfigure}\par
+      {\scriptsize\color{muted}\(L_2\) over \(D\): a smooth bowl with one lowest point.\par}}
+    \end{column}
+  \end{columns}
+  \medskip
+
+    \[\begingroup\uncover<4->{L_2(m, c) = \frac{1}{N}\sum_{i = 1}^N r(i\mid m, c)^2 = \frac{1}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})^2}\endgroup\]
+\end{frame}
+\begin{frame}{Calculating \(\pdv{L_2}{m}\) (2nd Attempt)}
+    \begin{align*}
+        \only{\pdv{L_2}{m} &= \frac{1}{N}\sum_{i = 1}^N\pdv{}{m}\ab(f(x^{(i)}\mid m, c) - y^{(i)})^2\\}<1-4>
+        \only{&= \frac{1}{N}\sum_{i = 1}^N2\ab(f(x^{(i)}\mid m, c) - y^{(i)})\cdot \pdv{}{m}\ab(f(x^{(i)}\mid m, c) - y^{(i)})\\}<2-4>
+        \only{&= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})\cdot \pdv{}{m}(mx^{(i)} + c - y^{(i)})\\}<3-4>
+        \only{&= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})x^{(i)}}<4>
+        \only{\pdv{L_2}{m} &= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})x^{(i)}}<5->
+    \end{align*}
+    \only{As an exercise, you can show that
+    \[\pdv{L_2}{c} = \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})\]}<5->
+\end{frame}
+\begin{frame}{Finding \(m\) and \(c\)}
+    \only{Set both partial derivatives to 0.
+    \begin{align*}
+        0 &= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})x^{(i)}\\
+        0 &= \frac{2}{N}\sum_{i = 1}^N\ab(f(x^{(i)}\mid m, c) - y^{(i)})
+    \end{align*}}<1-3>
+    \only{A lot of re-arranging occurs, which takes too long. Hence left as exercise.}<2-3>
+
+    \only{End result:
+    \begin{align*}
+        m &= \frac{\overline{xy} - \overline{x}\cdot \overline{y}}{\overline{x^2} - \overline{x}^2}\\
+        c &= \overline{y} - m\overline{x}
+    \end{align*}}<3->
+    \only{Where:
+    \begin{align*}
+        \overline{x} &= \frac{1}{N}\sum_{i = 1}^Nx^{(i)} & \overline{y} &= \frac{1}{N}\sum_{i = 1}^Ny^{(i)}\\
+        \overline{xy} &= \frac{1}{N}\sum_{i = 1}^Nx^{(i)}y^{(i)} & \overline{x^2} &= \frac{1}{N}\sum_{i = 1}^N\ab(x^{(i)})^2
+    \end{align*}}<4->
+\end{frame}
+\begin{frame}{Application to our dataset}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.2\textwidth}
+      % T1
+      \centering
+      \begin{tabular}{@{}ccc@{}}
+        \toprule
+        \(i\) & \(x^{(i)}\) & \(y^{(i)}\) \\
+        \midrule
+        1 & 1 & 2 \\
+        2 & 2 & 3 \\
+        3 & 3 & 7 \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.78\textwidth}
+      \vspace{-1.2em}
+      % Keep each & outside \uncover so the alignment still sees it.
+      \begin{align*}
+          \overline{x} &\uncover<2->{= \frac{1 + 2 + 3}{3} = 2} &
+          \overline{y} &\uncover<2->{= \frac{2 + 3 + 7}{3} = 4}\\
+          \overline{xy} &\uncover<3->{= \frac{1\cdot 2 + 2\cdot 3 + 3\cdot 7}{3} = \frac{29}{3}} &
+          \overline{x^2} &\uncover<3->{= \frac{1^2 + 2^2 + 3^2}{3} = \frac{14}{3}}
+      \end{align*}
+      \begin{align*}
+          \uncover<4->{m} &\uncover<4->{= \frac{\overline{xy} - \overline{x}\cdot \overline{y}}{\overline{x^2} - \overline{x}^2}
+             = \frac{29/3 - 2\cdot 4}{14/3 - 2^2}
+             = \frac{5/3}{2/3} = 2.5}\\
+          \uncover<5->{c} &\uncover<5->{= \overline{y} - m\overline{x} = 4 - 2.5\cdot 2 = -1}
+      \end{align*}
+      \uncover<6->{Line of best fit: \(f(x\mid 2.5, -1) = 2.5x - 1\)}
+    \end{column}
+  \end{columns}
+\end{frame}
+\begin{frame}{Visualisation}
+  % G1 with the line of best fit, and the initial guess for comparison.
+  \begin{center}
+    \begin{tikzpicture}
+      \begin{axis}[data axis,width=0.72\textwidth,height=6.2cm]
+        \only<2->{%
+          \addplot[guess line,dashed] {x + 2};
+          \addlegendentry{Initial guess \(f(x\mid 1, 2)\)}}
+        \only<3->{%
+          \addplot[fit line] {2.5*x - 1};
+          \addlegendentry{Best fit \(f(x\mid 2.5, -1)\)}}
+        \plotdata
+        \addlegendentry{Data \(D\)}
+      \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+\begin{frame}{Comparing \(L_2\)}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Initial guess \(f(x\mid 1, 2)\)}
+        \centering
+        \begin{tabular}{@{}ccccc@{}}
+          \toprule
+          \(i\) & \(x^{(i)}\) & \(y^{(i)}\) & \(r(i\mid 1, 2)\) & \(r^2\) \\
+          \midrule
+          1 & 1 & 2 & \(3 - 2 = 1\) & 1 \\
+          2 & 2 & 3 & \(4 - 3 = 1\) & 1 \\
+          3 & 3 & 7 & \(5 - 7 = -2\) & 4 \\
+          \bottomrule
+        \end{tabular}
+        \[\begingroup\uncover<2->{L_2(1, 2) = \frac{1 + 1 + 4}{3} = 2}\endgroup\]
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \uncover<3->{%
+      \begin{exampleblock}{Best fit \(f(x\mid 2.5, -1)\)}
+        \centering
+        \begin{tabular}{@{}ccccc@{}}
+          \toprule
+          \(i\) & \(x^{(i)}\) & \(y^{(i)}\) & \(r(i\mid 2.5, -1)\) & \(r^2\) \\
+          \midrule
+          1 & 1 & 2 & \(1.5 - 2 = -0.5\) & 0.25 \\
+          2 & 2 & 3 & \(4 - 3 = 1\) & 1 \\
+          3 & 3 & 7 & \(6.5 - 7 = -0.5\) & 0.25 \\
+          \bottomrule
+        \end{tabular}
+        \[\begingroup\uncover<4->{L_2(2.5, -1) = \frac{0.25 + 1 + 0.25}{3} = 0.5}\endgroup\]
+      \end{exampleblock}}
+    \end{column}
+  \end{columns}
+  \medskip
+  \uncover<5->{\(0.5 < 2\), so the best fit beats the initial guess.}
+
+  \uncover<6->{\(L_2\) is a bowl - the point where both partial derivatives are 0 is its lowest point: no other \(m\) and \(c\) give smaller \(L_2\).}
+\end{frame}
+
+% \begin{frame}{A comparison}
+%   \begin{center}
+%     \small
+%     \begin{tabular}{@{}lrr@{}}
+%       \toprule
+%       Method   & Error & Time \\
+%       \midrule
+%       Baseline & 0.42  & 1.0  \\
+%       Variant  & 0.31  & 1.4  \\
+%       Proposed & 0.18  & 1.6  \\
+%       \bottomrule
+%     \end{tabular}
+%   \end{center}
+%   \vspace{0.8em}
+%   One sentence on which row matters, and why.
+% \end{frame}
+
+% \begin{frame}{A figure}
+%   \begin{center}
+%     \setlength{\fboxsep}{14pt}%
+%     \colorbox{accentsoft}{%
+%       \begin{minipage}[c][3.5cm][c]{0.70\textwidth}
+%         \centering
+%         Figure placeholder\par
+%         \vspace{0.4em}
+%         {\small\color{muted}\texttt{figures/name.pdf}}
+%       \end{minipage}%
+%     }
+%   \end{center}
+%   % \begin{center}
+%   %   \includegraphics[width=0.72\textwidth]{figures/name.pdf}
+%   % \end{center}
+%   What the picture shows, in one line.
+% \end{frame}
+
+% \begin{frame}[fragile]{A snippet}
+%   \begin{lstlisting}[language=Python]
+% def score(items):
+%     # Keep examples shorter than the slide.
+%     return sum(item.value for item in items)
+%   \end{lstlisting}
+%   A frame that contains a listing needs the \texttt{fragile} option.
+% \end{frame}
+
+% \section{Close}
+
+% \begin{frame}{Takeaways}
+%   \begin{enumerate}
+%     \item The first thing they should be able to repeat
+%     \item The second
+%     \item What you want them to do next
+%   \end{enumerate}
+% \end{frame}
+
+% \begin{frame}[plain]
+%   \vspace*{1.6em}
+%   \begin{beamercolorbox}[wd=\textwidth,sep=1.15em,left]{title}
+%     {\usebeamerfont{title}Questions\par}
+%   \end{beamercolorbox}
+%   \vspace{1.8em}
+%   {\Large Your Name\par}
+%   \vspace{0.5em}
+%   {\color{muted}name@example.com\par}
+% \end{frame}
+
+% \appendix
+
+% \begin{frame}{Backup}
+%   \framesubtitle{Shown only if someone asks}
+%   Detail that does not belong in the main line of the talk.
+%   Appendix frames stay out of the outline.
+% \end{frame}
+
+\end{document}
